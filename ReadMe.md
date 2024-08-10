@@ -1,0 +1,1 @@
+只有 Master 會需要 init.sql

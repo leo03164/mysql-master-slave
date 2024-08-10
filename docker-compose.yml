@@ -1,0 +1,53 @@
+services:
+  # MySQL Master
+  db:
+    image: mysql:${MYSQL_VERSION}
+    container_name: mysql
+    platform: linux/arm64
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - ./data:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mysql
+    restart: unless-stopped
+
+  # MySQL Slave
+  # db:
+  #   image: mysql:${MYSQL_VERSION}
+  #   container_name: mysql
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+  #   ports:
+  #     - "${MYSQL_PORT}:3306"
+  #   volumes:
+  #     - ./data:/var/lib/mysql
+  #     - ./my.cnf:/etc/mysql/conf.d/my.cnf
+  #   networks:
+  #     - mysql
+  #   restart: unless-stopped
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: arm64v8/phpmyadmin
+    platform: linux/arm64/v8
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: ${PMA_HOST}
+      PMA_USER: ${PMA_USER}
+      PMA_PASSWORD: ${PMA_PASSWORD}
+    ports:
+      - "${PHPMYADMIN_PORT}:80"
+    networks:
+      - mysql
+    restart: unless-stopped
+    depends_on:
+      - db
+
+networks:
+  mysql:
+    driver: bridge
